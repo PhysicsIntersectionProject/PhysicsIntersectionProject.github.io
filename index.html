@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+  <title>Intersection Calculator</title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+</head>
+<body>
+
+  <script>
+      var avgCarAccel;
+      var reactionTime;
+      var carLen;
+      var carGap;
+      var carBrakeAccel;
+      var intersectionWidth;
+      var speedLimit;
+      var numberCars;
+
+      var resultGreen;
+      var speedLimitReached;
+      var resultYellow;
+      var resultRed;
+
+    function calculateTimings() {
+      avgCarAccel = Number(document.getElementById("field_caraccel").value);
+      reactionTime = Number(document.getElementById("field_reactiontime").value);
+      carLen = Number(document.getElementById("field_carlen").value);
+      carGap = Number(document.getElementById("field_cargap").value);
+      carBrakeAccel = -1 * Number(document.getElementById("field_carbrakeaccel").value);
+      intersectionWidth = Number(document.getElementById("field_intersectionwidth").value);
+      speedLimit = Number(document.getElementById("field_speedlimit").value);
+      numberCars = Number(document.getElementById("field_numbercars").value);
+
+      console.log("Car accel: " + avgCarAccel);
+      console.log("Reaction time: " + reactionTime);
+      console.log("Car length: " + carLen);
+      console.log("Car gap: " + carGap);
+      console.log("Car brake accel: " + carBrakeAccel);
+      console.log("Intersection width: " + intersectionWidth);
+      console.log("Speed limit: " + speedLimit);
+      console.log("num cars: " + numberCars);
+      console.log("---------------");
+
+      resultGreen = calculateGreen();
+      resultYellow = calculateYellow();
+      resultRed = resultGreen + resultYellow;
+
+      document.getElementById("result_green").innerHTML = resultGreen.toFixed(2) + " sec";
+      document.getElementById("result_yellow").innerHTML = resultYellow.toFixed(2) + " sec";
+      document.getElementById("result_red").innerHTML = resultRed.toFixed(2) + " sec";
+      document.getElementById("result_speedlimitreached").innerHTML = speedLimitReached;
+
+
+    }
+
+    function calculateYellow() {
+      var vNaughtTwo = avgCarAccel * resultGreen;
+      speedLimitReached = (vNaughtTwo >= speedLimit);
+
+      var yellowResult = 0;
+
+      if(!speedLimitReached) {
+        yellowResult = (-1 * vNaughtTwo) / carBrakeAccel;
+      } else {
+        yellowResult = (-1 * speedLimit) / carBrakeAccel;
+      }
+
+      return yellowResult;
+
+    }
+
+    function calculateGreen() {
+      var reactionTimeSum = numberCars * reactionTime;
+  
+      var greenResult = reactionTimeSum;
+
+      greenResult += passTime(1);
+
+      greenResult += (passTime(numberCars) - passTime(1));
+
+      return greenResult;
+
+    }
+
+    function passTime(carNum) {
+      var distToGetAcross = distToGetAcrossIntersection(carNum);
+
+      var numerator = Math.sqrt(2 * avgCarAccel * distToGetAcross);
+
+      return numerator/avgCarAccel;
+    }
+
+    function distToGetAcrossIntersection(carNum) {
+      var xFinal = intersectionWidth + carLen;
+      var xNaught = -1 * (carNum - 1) * (carLen + carGap);
+
+      return xFinal - xNaught;
+    }
+
+  </script>
+  
+
+  <div id="index-banner" class="container">
+    <div class="section no-pad-bot">
+      <div class="container">
+        <br><br>
+    
+        <h1 id="titleheaderetc" class="header center blue-text">Intersection Light Cycle Calculator</h1>
+        <div class="row center">
+          <h5 class="header col s12 light blue-text">By Bharath Hegde, Atish Anantharam, Shivani Shah, Prathisha Shyamsundar</h5>
+          <br>
+          <h5 class="header col s12" style="text-decoration: underline;">(the default values are based on measurements from our intersection and unmeasured, researched values)</h5>
+        </div>
+      
+
+      </div>
+    </div>
+    
+  </div>
+
+
+  <div class="container">
+    <div class="section">
+
+    
+  
+    
+     <div class="row">
+        <div class="col s12 m12">
+          <div class="card blue">
+            <div class="card-content white-text">
+              <span class="card-title">Input Variables (click each field to enter numbers &amp; don't leave anything blank)</span>
+              <div class="row">
+    <form class="col s12">
+      <div class="row">
+        <div class="input-field col s3">
+          <input id="field_caraccel" type="number" step="0.0001" value="4">
+          <label for="field_caraccel">Avg car acceleration (m/s^2)</label>
+        </div>
+        <div class="input-field col s3">
+          <input id="field_reactiontime" type="number" step="0.0001" value="0.283">
+          <label for="field_reactiontime">Avg human reaction time (sec)</label>
+        </div>
+        <div class="input-field col s3">
+          <input id="field_carlen" type="number" step="0.0001" value="4.6">
+          <label for="field_carlen">Car length (m)</label>
+        </div>
+        <div class="input-field col s3">
+          <input id="field_cargap" type="number" step="0.0001" value="1">
+          <label for="field_cargap">Gap between cars (stopped) (m)</label>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="input-field col s3">
+          <input id="field_carbrakeaccel" type="number" step="0.0001" value="8.3">
+          <label for="field_carbrakeaccel">Avg car braking acceleration (m/s^2)</label>
+        </div>
+        <div class="input-field col s3">
+          <input id="field_intersectionwidth" type="number" step="0.0001" value="7.61">
+          <label for="field_intersectionwidth">Intersection width (m)</label>
+        </div>
+        <div class="input-field col s3">
+          <input id="field_speedlimit" type="number" step="0.0001" value="15.646">
+          <label for="field_speedlimit">Speed Limit (m/s)</label>
+        </div>
+        <div class="input-field col s3">
+          <input id="field_numbercars" type="number" step="1" value="19">
+          <label for="field_numbercars"># of cars to go through green light</label>
+        </div>
+      </div>
+           
+
+
+       
+      
+    </form>
+    <button onclick="calculateTimings()" id="calculateButton" class="btn waves-effect waves-light" style="background-color:#3c3c3c;">Calculate Timings
+        <i class="material-icons right">done</i>
+      </button>
+      &nbsp;Results will be below
+      </div>
+        
+        </div>
+          </div>
+        </div>
+      </div>
+    
+    <div class="row">
+        <div class="col s12 m12">
+          <div class="card blue">
+            <div class="card-content white-text">
+              <span class="card-title">Results</span>
+              <div class="row">
+   
+      <div class="row">
+        <div class="col s3" style="font-weight:bold">
+          &Delta;t green
+        </div>
+        <div class="col s3" style="font-weight:bold">
+          &Delta;t yellow
+        </div>
+        <div class="col s3" style="font-weight:bold">
+         &Delta;t red
+        </div>
+        <div class="col s3" style="font-weight:bold">
+          n+1 car reached speed limit during green?
+        </div>
+      </div>
+
+       <div class="row">
+        <div class="col s3" style="font-weight:bold; color:#00ff04; background-color: #000">
+          <h6 id="result_green">- sec</h6>
+        </div>
+        <div class="col s3" style="font-weight:bold; color:#fffa00; background-color: #000">
+          <h6 id="result_yellow">- sec</h6>
+        </div>
+        <div class="col s3" style="font-weight:bold; color:#ff0022; background-color: #000">
+         <h6 id="result_red">- sec</h6>
+        </div>
+        <div class="col s3" style="font-weight:bold; color:#00ff04; background-color: #000">
+          <h6 id="result_speedlimitreached">-</h6>
+        </div>
+      </div>
+
+
+      </div>
+        
+        </div>
+          </div>
+        </div>
+      </div>
+    
+    
+    
+
+    <div class="row">
+        <div class="col s12 m12">
+        
+        </div>
+      </div>
+    
+     
+            
+
+    </div>
+  </div>
+
+
+
+  <!--  Scripts-->
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="js/materialize.js"></script>
+  <script src="js/init.js"></script>
+
+  </body>
+</html>
